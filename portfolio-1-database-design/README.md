@@ -157,7 +157,7 @@ All nine tables are in 3NF: every non-key attribute depends on the key, the whol
 - **`orders.total_amount`** can be derived from the order items, so it is controlled denormalisation. It is kept for faster reporting and is set inside the order transaction (see Portfolio 3), so it stays consistent.
 
 ## 6. How to Reproduce
-1. Install PostgreSQL and pgAdmin.
+1. PostgreSQL 17 installed locally and connected through pgAdmin:![pgAdmin connected](01_pgadmin_server_connected.png).
 2. Create a database: `CREATE DATABASE shopbeta;`
 3. Open the Query Tool on `shopbeta`, load `schema.sql`, and run it.
 4. In pgAdmin, right-click the database → **ERD For Database** to generate the diagram.
