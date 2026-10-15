@@ -136,7 +136,7 @@ Imagine all order data kept in a single sheet:
 
 | order_id | customer_name | customer_email | customer_address | products | quantities | seller | total |
 |---|---|---|---|---|---|---|---|
-| 1001 | Customer A | contact@devlonhub.com | 12 Ikeja Road, Lagos | Test Phone, Phone Case | 1, 2 | DevlonHub | 160000 |
+| 1001 | Customer A | customer.a@example.com | 12 Ikeja Road, Lagos | Test Phone, Phone Case | 1, 2 | DevlonHub | 160000 |
 
 Problems: repeating groups in one cell, customer details repeated for every order, and update, insert and delete anomalies.
 
