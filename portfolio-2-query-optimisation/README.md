@@ -26,7 +26,7 @@ The queries are in `queries.sql` (Part A).
 ### A1: Orders in each status
 [One sentence on what the query does.]
 
-![A1 result](06_query_a1_orders_by_status.png)
+![A1 result](06_query_orders_by_status.png)
 
 ### A2: Top 5 sellers by revenue
 [One sentence on what the query does.]
