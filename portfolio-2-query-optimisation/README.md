@@ -24,7 +24,7 @@ The tables were filled with synthetic (made-up) data using `generate_data.sql`:
 The queries are in `queries.sql` (Part A).
 
 ### A1: Orders in each status
-[One sentence on what the query does.]
+This SQL query counts the total number of orders for each status in the orders table and ranks them from most to least frequent.
 
 ![A1 result](06_query_orders_by_status.png)
 
