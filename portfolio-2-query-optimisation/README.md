@@ -29,7 +29,7 @@ This SQL query counts the total number of orders for each status in the orders t
 ![A1 result](06_query_orders_by_status.png)
 
 ### A2: Top 5 sellers by revenue
-[One sentence on what the query does.]
+Calculates total sales revenue for each seller by joining the order_items, products, and sellers tables, returning the top 5 highest-grossing businesses.
 
 ![A2 result](07_query_top_sellers.png)
 
