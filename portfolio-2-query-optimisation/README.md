@@ -220,9 +220,9 @@ Query Plan Summary:```Nested Loop  (cost=5.75..972.17 rows=80 width=27) (actual 
 Planning:
   Buffers: shared hit=55 read=1
 Planning Time: 1.937 ms
-Execution Time: 18.818 ms```
+Execution Time: 18.818 ms ```
 
-**Analysis:** Before indexing, Postgres did a Seq Scan on order_items, reading almost 200,000 rows line by line to locate product 123, which took over 1 second. With the index on product_id, Postgres ran a Bitmap Index Scan to pinpoint just the 80 matching items directly before joining them to orders. This cut the execution time from 1,199.66 ms down to 18.82 ms.
+**Analysis:** Before indexing, Postgres did a Seq Scan on order_items, reading all of its roughly 400,000 rows to locate product 123, which took over 1 second. With the index on product_id, Postgres ran a Bitmap Index Scan to pinpoint just the 80 matching items directly before joining them to orders. This cut the execution time from 1,199.66 ms down to 18.82 ms.
 
 ## 5. Performance summary
 
