@@ -88,7 +88,7 @@ Planning:
 Planning Time: 0.435 ms
 Execution Time: 0.134 ms
 
-**Analysis:** Without an index, PostgreSQL had to spawn two parallel workers to scan the entire orders table (evaluating roughly 200,000 rows across 3,458 memory buffer blocks) to find 10 target records. Adding idx_orders_customer_id allowed PostgreSQL to perform a Bitmap Index Scan to lookup the exact physical page locations for customer_id = 500 directly. This reduced disk/buffer page reads from 3,458 down to 12, cutting query execution time from 83.87 ms to 0.13 ms (~625x speedup).
+**Analysis:** Without an index, Postgres had to do a Seq Scan (Sequential Scan), meaning it checked every single row in the orders table just to find the 10 orders belonging to customer 500. After adding the index, Postgres used a Bitmap Index Scan to look up the exact locations of customer 500's orders first and grab only those rows. This dropped the execution time from 83.87 ms to 0.13 ms.
 
 ### B2: Delivered orders in the last 30 days
 ```sql
@@ -134,7 +134,7 @@ Execution Plan: Bitmap Index Scan (Bitmap Heap Scan)
 
 Execution Time: 2.83 ms
 
-Query Plan Summary:Aggregate  (cost=2564.98..2564.99 rows=1 width=40) (actual time=2.773..2.775 rows=1 loops=1)
+Query Plan Summary:```Aggregate  (cost=2564.98..2564.99 rows=1 width=40) (actual time=2.773..2.775 rows=1 loops=1)
   Buffers: shared hit=918 read=9
   ->  Bitmap Heap Scan on orders  (cost=37.41..2558.65 rows=1267 width=8) (actual time=1.552..2.467 rows=1272 loops=1)
         Recheck Cond: (((status)::text = 'DELIVERED'::text) AND (order_date >= (now() - '30 days'::interval)))
@@ -146,15 +146,16 @@ Query Plan Summary:Aggregate  (cost=2564.98..2564.99 rows=1 width=40) (actual ti
 Planning:
   Buffers: shared hit=28 read=1
 Planning Time: 3.202 ms
-Execution Time: 2.827 ms
+Execution Time: 2.827 ms```
 
-**Analysis:** Without an index, PostgreSQL was forced to launch parallel workers to perform a full table scan, checking nearly 200,000 rows across 3,458 buffer pages to filter for delivered orders within the 30-day window. Creating the composite index idx_orders_status_date(status, order_date) allows PostgreSQL to skip scanning unneeded rows entirely. Using a Bitmap Index Scan, it targets only the index pages matching both conditions, reducing buffer reads from 3,458 to 927 and cutting execution time from 132.32 ms to 2.83 ms (a ~46x performance improvement).
+**Analysis:** Before the index, Postgres ran a Seq Scan across the whole orders table to check which orders were both 'DELIVERED' and placed in the last 30 days. Creating a composite index on (status, order_date) let Postgres use a Bitmap Index Scan to skip all unneeded rows and pull only the matching data. This brought the query time down from 132.32 ms to 2.83 m
 
-### B3: Customers who bought product 123
+### B3: Orders and customers for one product
 ```sql
-SELECT DISTINCT o.customer_id
-FROM orders o
-JOIN order_items oi ON o.order_id = oi.order_id
+SELECT o.order_id, o.order_date, c.first_name, c.last_name, oi.quantity
+FROM order_items oi
+JOIN orders    o ON o.order_id    = oi.order_id
+JOIN customers c ON c.customer_id = o.customer_id
 WHERE oi.product_id = 123;
 ```
 
@@ -164,7 +165,7 @@ Execution Plan: Parallel Sequential Scan (Parallel Seq Scan) on order_items
 
 Execution Time: 1199.66 ms
 
-Query Plan Summary:Gather  (cost=1000.71..6903.65 rows=80 width=27) (actual time=35.033..1199.093 rows=80 loops=1)
+Query Plan Summary:```Gather (cost=1000.71..6903.65 rows=80 width=27) (actual time=35.033..1199.093 rows=80 loops=1)
   Workers Planned: 1
   Workers Launched: 1
   Buffers: shared hit=3110
@@ -185,8 +186,7 @@ Query Plan Summary:Gather  (cost=1000.71..6903.65 rows=80 width=27) (actual time
 Planning:
   Buffers: shared hit=79 read=2 dirtied=3
 Planning Time: 20.193 ms
-Execution Time: 1199.658 ms
-
+Execution Time: 1199.658 ms ```
 
 **Index created:**
 ```sql
@@ -200,7 +200,7 @@ Execution Plan: Bitmap Index Scan (Bitmap Heap Scan) on order_items
 
 Execution Time: 18.82 ms
 
-Query Plan Summary:Nested Loop  (cost=5.75..972.17 rows=80 width=27) (actual time=0.337..18.690 rows=80 loops=1)
+Query Plan Summary:```Nested Loop  (cost=5.75..972.17 rows=80 width=27) (actual time=0.337..18.690 rows=80 loops=1)
   Buffers: shared hit=640 read=3
   ->  Nested Loop  (cost=5.46..947.31 rows=80 width=20) (actual time=0.255..11.072 rows=80 loops=1)
         Buffers: shared hit=400 read=3
@@ -220,9 +220,9 @@ Query Plan Summary:Nested Loop  (cost=5.75..972.17 rows=80 width=27) (actual tim
 Planning:
   Buffers: shared hit=55 read=1
 Planning Time: 1.937 ms
-Execution Time: 18.818 ms
+Execution Time: 18.818 ms```
 
-**Analysis:** Without an index, PostgreSQL scanned nearly 200,000 rows in order_items line by line using parallel workers, taking almost 1.2 seconds to resolve the query. Creating idx_order_items_product_id allowed PostgreSQL to perform a Bitmap Index Scan to extract only the 80 relevant order_items directly. This eliminated the full table scan and reduced execution time from 1199.66 ms to 18.82 ms (~64x speedup).
+**Analysis:** Before indexing, Postgres did a Seq Scan on order_items, reading almost 200,000 rows line by line to locate product 123, which took over 1 second. With the index on product_id, Postgres ran a Bitmap Index Scan to pinpoint just the 80 matching items directly before joining them to orders. This cut the execution time from 1,199.66 ms down to 18.82 ms.
 
 ## 5. Performance summary
 
