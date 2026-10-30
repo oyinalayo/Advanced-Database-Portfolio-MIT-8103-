@@ -14,11 +14,13 @@ Placing an order involves several steps: create the order, add the items, reduce
 Executing COMMIT permanently saved every step of the checkout process—from creating the order to updating stock and recording the payment—into the database all at once. Because all five queries succeeded inside the transaction, the changes took effect together as a single complete unit without leaving any partial data behind.
 
 ## 3. Failed transaction (ROLLBACK)
-I tried to buy 50 units when only [number] were in stock. The CHECK constraint rejected the stock update, so I rolled the transaction back.
+I tried to buy 50 units when only 8 were in stock. The CHECK constraint rejected the stock update, so I rolled the transaction back.
 
 ![Rollback](12_p3_rollback.png)
 
-[Two sentences in your own words: what happened to the order that was created before the error, and why.]
+The order was inserted first, and the count went up to 200002 inside the transaction.
+The stock update then failed.
+ROLLBACK undid everything, so the count went back to 200001 and no half-finished order was left.
 
 ## 4. Concurrency problem: lost update
 Two customers each bought 1 unit of product 3 at the same time. Stock started at 10 and should have ended at 8.
