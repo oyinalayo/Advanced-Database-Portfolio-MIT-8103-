@@ -31,24 +31,28 @@ ROLLBACK undid everything, so the count went back to 200001 and no half-finished
 
 ## 4. Concurrency problem: lost update
 
-**Note:** I was not able to run this scenario with two simultaneous sessions in my environment, so this section is an explanation of how the problem occurs and how PostgreSQL controls it. It is not based on screenshots of my own two-session test.
+Two sessions (two pgAdmin Query Tool tabs) were used. Product 3 had a stock of 10, and each "customer" bought 1 unit, so the correct final stock is 8.
 
-### The scenario
-Product 3 has 10 units in stock. Two customers each buy 1 unit at the same moment. The correct final stock is 8.
+1. Both sessions began a transaction and read the stock. Both saw 10.
+2. Session 1 set the stock to 9 and committed.
+3. Session 2, still working from the 10 it had read, also set the stock to 9 and committed.
+
+```sql
+BEGIN;
+SELECT stock_quantity FROM products WHERE product_id = 3;   -- both sessions see 10
+UPDATE products SET stock_quantity = 9 WHERE product_id = 3;
+COMMIT;
+```
+
+Final stock: **9**. Two units were sold, so it should be 8. One purchase was lost because the second update overwrote the first. This is a lost update.
+
+![Lost update](_lost_update.png)
 
 ### What goes wrong without protection
 1. Both transactions read the stock and see 10.
 2. Each calculates 10 - 1 = 9.
 3. The first saves 9. The second also saves 9, overwriting the first.
 4. The final stock is 9, but two units were sold. One sale has been lost. This is called a lost update.
-
-```sql
--- Transaction A and Transaction B both run:
-BEGIN;
-SELECT stock_quantity FROM products WHERE product_id = 3;   -- both see 10
-UPDATE products SET stock_quantity = 9 WHERE product_id = 3;
-COMMIT;
-```
 
 ### How it is controlled: row locking
 Adding `FOR UPDATE` to the read locks the product row:
