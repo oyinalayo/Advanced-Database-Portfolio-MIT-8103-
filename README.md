@@ -22,7 +22,7 @@ ShopBeta is a simulated online marketplace based in Lagos, Nigeria, inspired by 
 |---|---|---|
 | [portfolio-1-database-design](portfolio-1-database-design) | ER diagram, schema, normalisation | Completed |
 | [portfolio-2-query-optimisation](portfolio-2-query-optimisation)| Queries, execution plans, indexes | Completed |
-| portfolio-3-transactions-concurrency | Transaction and locking demos | Not started |
+| [portfolio-3-transactions-concurrency](portfolio-3-transactions-concurrency) | Transaction and locking demos | Completed |
 | portfolio-4-nosql | MongoDB model and scripts | Not started |
 | portfolio-5-distributed-cloud | Replication and sharding | Not started |
 
