@@ -11,12 +11,12 @@ Placing an order involves several steps: create the order, add the items, reduce
 
 ![Commit success](_commit_success.png)
 
-Executing COMMIT permanently saved every step of the checkout process—from creating the order to updating stock and recording the payment—into the database all at once. Because all five queries succeeded inside the transaction, the changes took effect together as a single complete unit without leaving any partial data behind.
+Executing COMMIT permanently saved every step of the checkout process—from creating the order to updating stock and recording the payment—into the database all at once. Because all six queries succeeded inside the transaction, the changes took effect together as a single complete unit without leaving any partial data behind.
 
 ## 3. Failed transaction (ROLLBACK)
 I tried to buy 50 units when only 8 were in stock. The CHECK constraint rejected the stock update, so I rolled the transaction back.
-Order count inside the open transaction, after the new order was inserted:
 
+Order count inside the open transaction, after the new order was inserted:
 ![Rollback before](_rollback_before.png)
 
 The stock update fails because it would make the stock negative:
@@ -30,24 +30,54 @@ The stock update then failed.
 ROLLBACK undid everything, so the count went back to 200001 and no half-finished order was left.
 
 ## 4. Concurrency problem: lost update
-Two customers each bought 1 unit of product 3 at the same time. Stock started at 10 and should have ended at 8.
 
-- Without protection, final stock: [number]
-- With `SELECT ... FOR UPDATE`, final stock: [number]
+**Note:** I was not able to run this scenario with two simultaneous sessions in my environment, so this section is an explanation of how the problem occurs and how PostgreSQL controls it. It is not based on screenshots of my own two-session test.
 
-![Lost update](13_p3_lost_update.png)
-![Fixed with row lock](14_p3_for_update.png)
+### The scenario
+Product 3 has 10 units in stock. Two customers each buy 1 unit at the same moment. The correct final stock is 8.
 
-[Your explanation: why both tabs read 10, and how the lock made the second tab wait.]
+### What goes wrong without protection
+1. Both transactions read the stock and see 10.
+2. Each calculates 10 - 1 = 9.
+3. The first saves 9. The second also saves 9, overwriting the first.
+4. The final stock is 9, but two units were sold. One sale has been lost. This is called a lost update.
+
+```sql
+-- Transaction A and Transaction B both run:
+BEGIN;
+SELECT stock_quantity FROM products WHERE product_id = 3;   -- both see 10
+UPDATE products SET stock_quantity = 9 WHERE product_id = 3;
+COMMIT;
+```
+
+### How it is controlled: row locking
+Adding `FOR UPDATE` to the read locks the product row:
+
+```sql
+BEGIN;
+SELECT stock_quantity FROM products WHERE product_id = 3 FOR UPDATE;
+UPDATE products SET stock_quantity = stock_quantity - 1 WHERE product_id = 3;
+COMMIT;
+```
+
+The first transaction locks the row. The second waits until the first commits, then reads the new value (9) and saves 8. The final stock is correct.
+
+### Trade-off
+Locking makes customers buying the same product wait for each other, which can slow the system under heavy load. It trades correctness for speed.
 
 ## 5. Isolation levels
 
 | Level | First read | Second read (same transaction) | Meaning |
 |---|---|---|---|
-| READ COMMITTED | [ ] | [ ] | [ ] |
-| REPEATABLE READ | [ ] | [ ] | [ ] |
+| READ COMMITTED | 10 | 7 | Sees changes committed by others during the transaction |
+| REPEATABLE READ | 10 | 10 | Keeps seeing the data as it was when the transaction started |
 
-![Isolation levels](15_p3_isolation.png)
+![READ COMMITTED test](_read_committed.png)
+
+![REPEATABLE READ test](_repeatable_read.png)
+In the READ COMMITTED test, the stock read 10 at first and then 7 inside the same transaction, because the other tab had committed its change in between. In the REPEATABLE READ test, the second read stayed at 10 even though the other tab had changed the stock to 7, because the transaction kept the snapshot it started with. Only after COMMIT did the stock show 7.
+
+For ShopBeta checkout I would use READ COMMITTED, which is PostgreSQL's default, together with row locking (`SELECT ... FOR UPDATE`) on the product being bought. This keeps checkout fast and always uses the latest stock figure, while the lock stops two customers from overwriting each other's purchase. REPEATABLE READ gives steadier reads, but when two customers update the same row it can fail with a conflict error that the application must retry, which adds complexity for a busy shop.
 
 ## 6. Conclusion
-[Two or three sentences: why transactions matter, what the lock prevents, and what trade-off locking has.]
+Transactions keep ShopBeta's data correct by making a group of steps, such as placing an order, either all succeed or all fail. The commit and rollback tests showed this: a successful order was saved as one unit, and a failed order was completely undone. The isolation level tests showed that READ COMMITTED lets a transaction see changes other transactions have committed, while REPEATABLE READ keeps a steady view until the transaction ends. Row locking with `SELECT ... FOR UPDATE` is the standard way to stop two customers overwriting each other's stock update, and its trade-off is that users have to wait, which can slow a busy system.
