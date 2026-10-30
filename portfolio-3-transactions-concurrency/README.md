@@ -6,8 +6,8 @@ This portfolio shows how transactions keep ShopBeta's data correct when an order
 ## 2. Successful transaction (COMMIT)
 Placing an order involves several steps: create the order, add the items, reduce stock, record the payment and mark the order paid. All steps run inside one transaction.
 
-- Orders before: [number], after: [number]
-- Stock of product 1 before: [number], after: [number]
+- Orders before: 200000, after: 200001
+- Stock of product 1 before: 10, after: 8
 
 ![Commit success](_commit_success.png)
 
@@ -15,8 +15,15 @@ Executing COMMIT permanently saved every step of the checkout process—from cre
 
 ## 3. Failed transaction (ROLLBACK)
 I tried to buy 50 units when only 8 were in stock. The CHECK constraint rejected the stock update, so I rolled the transaction back.
+Order count inside the open transaction, after the new order was inserted:
 
-![Rollback](12_p3_rollback.png)
+![Rollback before](_rollback_before.png)
+
+The stock update fails because it would make the stock negative:
+![Rollback](_rollback_error.png)
+
+Order count after ROLLBACK:
+![Rollback after](_rollback_after.png)
 
 The order was inserted first, and the count went up to 200002 inside the transaction.
 The stock update then failed.
