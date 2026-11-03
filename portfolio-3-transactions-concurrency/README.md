@@ -48,11 +48,6 @@ Final stock: **9**. Two units were sold, so it should be 8. One purchase was los
 
 ![Lost update](_lost_update.png)
 
-### What goes wrong without protection
-1. Both transactions read the stock and see 10.
-2. Each calculates 10 - 1 = 9.
-3. The first saves 9. The second also saves 9, overwriting the first.
-4. The final stock is 9, but two units were sold. One sale has been lost. This is called a lost update.
 
 ### How it is controlled: row locking
 Adding `FOR UPDATE` to the read locks the product row:
