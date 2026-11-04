@@ -26,7 +26,7 @@ ShopBeta is a simulated online marketplace based in Lagos, Nigeria, inspired by 
 | [portfolio-4-nosql](portfolio-4-nosql) | MongoDB model and scripts | Completed |
 | [portfolio-5-distributed-cloud](portfolio-5-distributed-cloud) | Replication, sharding, availability, partitioning demo  | Completed |
 
-   ## How to Run
+## How to Run
    1. **Portfolio 1:** create a PostgreSQL database named `shopbeta` and run `portfolio-1-database-design/Schema.sql`.
    2. **Portfolio 2:** run `portfolio-2-query-optimisation/generate_data.sql`, then the queries in `queries.sql` one block at a time.
    3. **Portfolio 3:** run the examples in `portfolio-3-transactions-concurrency/transactions_concurrency.sql`. The concurrency tests need two separate sessions.
