@@ -58,11 +58,13 @@ A query using the shard key only touched one partition:
 
 ![One shard touched](_one_shard_touched.png)
 
-The 200,000 orders were spread almost evenly, and the query for one customer read only one partition, which is what a good shard key should do. This was run on one server, so it demonstrates the data split but not separate machines, replication or failover.
+The orders were spread almost evenly, with 66,724, 67,045 and 66,232 rows in the three partitions. The query for one customer read only one partition (`orders_shard_0`), which is what a good shard key should do. Within that partition the scan is sequential because no index was created for this demo. This was run on one server, so it demonstrates the data split but not separate machines, replication or failover.
 
 ## 8. Conclusion
 ShopBeta would benefit from replication for availability and read capacity, and from sharding orders by customer as the data grows. Consistency matters most at checkout, while the catalogue can tolerate slightly old data. Distribution improves resilience and scale at the cost of more complexity.
 
 ## References
-- PostgreSQL Global Development Group. PostgreSQL documentation: Table Partitioning, and High Availability, Load Balancing and Replication.
-- MongoDB, Inc. MongoDB documentation: Replication, and Sharding.
+- PostgreSQL Global Development Group (2025) *PostgreSQL 17 Documentation: Table Partitioning*. Available at: https://www.postgresql.org/docs/17/ddl-partitioning.html (Accessed: 4 November 2026).
+- PostgreSQL Global Development Group (2025) *PostgreSQL 17 Documentation: High Availability, Load Balancing, and Replication*. Available at: https://www.postgresql.org/docs/17/high-availability.html (Accessed: 4 November 2026).
+- MongoDB, Inc. (n.d.) *MongoDB Manual: Replication*. Available at: https://www.mongodb.com/docs/manual/replication/ (Accessed: 4 November 2026).
+- MongoDB, Inc. (n.d.) *MongoDB Manual: Sharding*. Available at: https://www.mongodb.com/docs/manual/sharding/ (Accessed: 4 November 2026).
