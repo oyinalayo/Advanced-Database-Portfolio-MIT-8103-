@@ -27,13 +27,17 @@ ShopBeta is a simulated online marketplace based in Lagos, Nigeria, inspired by 
 | [portfolio-5-distributed-cloud](portfolio-5-distributed-cloud) | Replication, sharding, availability, partitioning demo  | Completed |
 
 ## How to Run
-   1. **Portfolio 1:** create a PostgreSQL database named `shopbeta` and run `portfolio-1-database-design/Schema.sql`.
-   2. **Portfolio 2:** run `portfolio-2-query-optimisation/generate_data.sql`, then the queries in `queries.sql` one block at a time.
-   3. **Portfolio 3:** run the examples in `portfolio-3-transactions-concurrency/transactions_concurrency.sql`. The concurrency tests need two separate sessions.
-   4. **Portfolio 4:** paste `portfolio-4-nosql/seed_data.js` into mongosh, then run the queries in that folder's README.
-   5. **Portfolio 5:** run `portfolio-5-distributed-cloud/partitioning_demo.sql` after the orders data exists.
+1. **Portfolio 1:** create a PostgreSQL database named `shopbeta` and run `portfolio-1-database-design/Schema.sql`.
+2. **Portfolio 2:** run `portfolio-2-query-optimisation/generate_data.sql`, then the queries in `queries.sql` one block at a time.
+3. **Portfolio 3:** run the examples in `portfolio-3-transactions-concurrency/transactions_concurrency.sql`. The concurrency tests need two separate sessions.
+4. **Portfolio 4:** paste `portfolio-4-nosql/seed_data.js` into mongosh, then run the queries in that folder's README.
+5. **Portfolio 5:** run `portfolio-5-distributed-cloud/partitioning_demo.sql` after the orders data exists.
 
    Each folder has its own README with the evidence and explanations.
 
 ## AI Use Declaration
-To be completed at the end of the project.
+**Tool used:** Claude (Anthropic).
+
+**Purpose of use:** AI was used as a support tool for explaining technical concepts, suggesting SQL and MongoDB script approaches, generating synthetic data scripts, and troubleshooting errors.
+
+**Implementation and Verification:** The assignment involved the development and execution of database scripts, generation and testing of data, review of execution plans, validation of outputs, and preparation of the final documentation. All scripts were executed locally using PostgreSQL 17 and MongoDB 6.0.5. AI suggestions were reviewed, adapted, and corrected where necessary.
