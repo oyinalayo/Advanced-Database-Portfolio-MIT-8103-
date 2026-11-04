@@ -52,11 +52,11 @@ A single PostgreSQL server cannot be truly sharded, but hash partitioning shows 
 
 Rows per partition:
 
-![Rows per shard](p5_01_rows_per_shard.png)
+![Rows per shard](_rows_per_shard.png)
 
 A query using the shard key only touched one partition:
 
-![One shard touched](p5_02_one_shard_touched.png)
+![One shard touched](_one_shard_touched.png)
 
 The 200,000 orders were spread almost evenly, and the query for one customer read only one partition, which is what a good shard key should do. This was run on one server, so it demonstrates the data split but not separate machines, replication or failover.
 
