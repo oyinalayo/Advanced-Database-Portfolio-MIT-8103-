@@ -55,7 +55,7 @@ db.products.find({ "specs.ram": "8GB", "specs.storage": "128GB" }, { name: 1, pr
 ```
 Searches fields that only some products have.
 
-![Q2](p4_04_q2_specs.png)
+![Q2](_specs.png)
 
 ### Q3: Average price per category
 ```javascript
@@ -64,7 +64,7 @@ db.products.aggregate([
   { $sort: { avg_price: -1 } }
 ])
 ```
-![Q3](p4_05_q3_avg_price.png)
+![Q3](_avg_price.png)
 
 ### Q4: Top 5 best-selling products
 ```javascript
@@ -77,7 +77,7 @@ db.orders.aggregate([
 ```
 `$unwind` splits each order's items so they can be counted without a join.
 
-![Q4](p4_06_q4_top_products.png)
+![Q4](_top_products.png)
 
 ### Q5: Update stock
 ```javascript
@@ -85,7 +85,7 @@ db.products.updateOne({ product_id: 1 }, { $inc: { stock_quantity: -2 } })
 ```
 Stock of product 1 went from 118 to 116.
 
-![Q5](p4_07_q5_update.png)
+![Q5](07_q5_update.png)
 
 ## 5. Indexing
 
@@ -96,17 +96,17 @@ db.products.find({ category: "Electronics", price: { $lt: 100000 } }).explain("e
 | | Before index | After index |
 |---|---|---|
 | Stage | COLLSCAN | IXSCAN |
-| Documents examined | [200] | 23 |
+| Documents examined | 200 | 23 |
 | Documents returned | 23 | 23 |
 
 ```javascript
 db.products.createIndex({ category: 1, price: 1 })
 ```
 
-![Before](p4_08_q6_before_index.png)
-![After](p4_09_q6_after_index.png)
+![Before](08_q6_before_index.png)
+![After](09_q6_after_index.png)
 
-[Two sentences in your own words: what COLLSCAN and IXSCAN mean, and why 23 documents examined is better than 200.]
+COLLSCAN means MongoDB read every document in the collection to find the matches, which was all 200 documents here. IXSCAN means it used the index to go straight to the matching documents, so only the 23 products that matched were examined. Examining 23 documents instead of 200 is less work, and the gap grows as the collection gets bigger.
 
 ## 6. Conclusion
-[Two or three sentences: what suits MongoDB in ShopBeta, what you give up compared with PostgreSQL, and why an index still matters.]
+MongoDB suits ShopBeta's product catalogue because products from different categories have different attributes and can be stored as flexible documents, with sellers and reviews inside them. What is given up compared with PostgreSQL is the database enforcing rules, such as foreign keys and CHECK constraints, so the application has to protect the data, and some information is repeated across documents. An index still matters in MongoDB, because without one every query scans the whole collection, which gets slower as the data grows.
