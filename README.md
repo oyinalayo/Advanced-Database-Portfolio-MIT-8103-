@@ -33,7 +33,7 @@ ShopBeta is a simulated online marketplace based in Lagos, Nigeria, inspired by 
 4. **Portfolio 4:** paste `portfolio-4-nosql/seed_data.js` into mongosh, then run the queries in that folder's README.
 5. **Portfolio 5:** run `portfolio-5-distributed-cloud/partitioning_demo.sql` after the orders data exists.
 
-   Each folder has its own README with the evidence and explanations.
+Each folder has its own README with the evidence and explanations.
 
 ## AI Use Declaration
 **Tool used:** Claude (Anthropic).
