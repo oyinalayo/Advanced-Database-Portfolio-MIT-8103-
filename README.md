@@ -1,7 +1,6 @@
 # Advanced Database Portfolio - ShopBeta
 
 **Student:** Oyindamola
-**Student ID:** 2026/A/MIT/0063
 **Course:** MIT 8103 Advanced Database Systems
 **Session:** 2026/2027, First Semester
 
